@@ -1,0 +1,24 @@
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { cleanup, fireEvent, render, screen, within } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import App from '../src/App';
+import { dateKey, STORAGE_KEY } from '../src/model';
+beforeEach(()=>{localStorage.clear();vi.spyOn(window,'confirm').mockReturnValue(true);});
+afterEach(()=>{cleanup();vi.restoreAllMocks();});
+describe('everyday workflows',()=>{
+  it('creates, prioritizes, completes, edits, and deletes a task',async()=>{
+    const user=userEvent.setup();render(<App/>);await user.click(screen.getByRole('button',{name:'Add a task',exact:true}));let dialog=screen.getByRole('dialog');await user.type(within(dialog).getByLabelText('What would you like to do?'),'Read a chapter');await user.click(within(dialog).getByLabelText('This one matters a little more'));await user.click(within(dialog).getByRole('button',{name:'Add to my day'}));expect(screen.getByRole('button',{name:'Read a chapter'})).toBeTruthy();await user.click(screen.getByRole('button',{name:'Complete: Read a chapter'}));expect(screen.getByRole('button',{name:'Mark incomplete: Read a chapter'}).getAttribute('aria-pressed')).toBe('true');await user.click(screen.getByRole('button',{name:'Edit Read a chapter'}));dialog=screen.getByRole('dialog');await user.clear(within(dialog).getByLabelText('What would you like to do?'));await user.type(within(dialog).getByLabelText('What would you like to do?'),'Read two chapters');await user.click(within(dialog).getByRole('button',{name:'Save changes'}));expect(JSON.parse(localStorage.getItem(STORAGE_KEY)!).tasks[0]).toMatchObject({title:'Read two chapters',done:true,priority:true});await user.click(screen.getByRole('button',{name:'Edit Read two chapters'}));await user.click(screen.getByRole('button',{name:'Delete task'}));expect(JSON.parse(localStorage.getItem(STORAGE_KEY)!).tasks).toHaveLength(0);
+  });
+  it('adds usable template tasks and filters completed items',async()=>{
+    const user=userEvent.setup();render(<App/>);await user.click(screen.getByRole('button',{name:/A calmer morning/}));expect(JSON.parse(localStorage.getItem(STORAGE_KEY)!).tasks).toHaveLength(3);await user.click(screen.getByRole('button',{name:'Complete: Drink a glass of water'}));await user.click(screen.getByRole('button',{name:'Done',exact:true}));expect(screen.getByRole('button',{name:'Drink a glass of water'})).toBeTruthy();expect(screen.queryByRole('button',{name:'Take 5 minutes to stretch'})).toBeNull();
+  });
+  it('tracks a routine, saves reflection, and restores both on reload',async()=>{
+    const user=userEvent.setup();const app=render(<App/>);await user.click(screen.getByRole('button',{name:'Routines',exact:true}));await user.type(screen.getByLabelText('New routine'),'Step outside');await user.click(screen.getByRole('button',{name:'Add routine'}));await user.click(screen.getAllByRole('button',{name:/Step outside,/})[0]);await user.click(screen.getByRole('button',{name:'Reflections',exact:true}));await user.click(screen.getByRole('button',{name:/Pretty good/}));await user.type(screen.getByLabelText(/What’s one thing that went well/),'A walk in the sun');app.unmount();render(<App/>);const saved=JSON.parse(localStorage.getItem(STORAGE_KEY)!);expect(saved.routines[0].days).toHaveLength(1);expect(saved.journal[dateKey()].win).toBe('A walk in the sun');await user.click(screen.getByRole('button',{name:'Reflections',exact:true}));expect((screen.getByLabelText(/What’s one thing that went well/) as HTMLTextAreaElement).value).toBe('A walk in the sun');
+  });
+  it('keeps a running focus timer when navigating and pauses it',async()=>{
+    const user=userEvent.setup();render(<App/>);await user.click(screen.getByRole('button',{name:'Start focus session'}));expect(JSON.parse(localStorage.getItem(STORAGE_KEY)!).timer.endAt).toBeGreaterThan(Date.now());await user.click(screen.getByRole('button',{name:'Reflections',exact:true}));await user.click(screen.getByRole('button',{name:'Focus room',exact:true}));await user.click(screen.getByRole('button',{name:'Pause',exact:true}));expect(JSON.parse(localStorage.getItem(STORAGE_KEY)!).timer.endAt).toBeNull();
+  });
+  it('moves a task to another date and shows it in the week view',async()=>{
+    const user=userEvent.setup();render(<App/>);await user.click(screen.getByRole('button',{name:'Add a task',exact:true}));await user.type(screen.getByLabelText('What would you like to do?'),'A future plan');fireEvent.change(screen.getByLabelText('When'),{target:{value:'2026-12-01'}});await user.click(screen.getByRole('button',{name:'Add to my day'}));expect(screen.queryByRole('button',{name:'A future plan'})).toBeNull();expect(JSON.parse(localStorage.getItem(STORAGE_KEY)!).tasks[0].date).toBe('2026-12-01');
+  });
+});

@@ -1,0 +1,3 @@
+export default function Flower({ className = '' }: { className?: string }) {
+  return <svg className={className} viewBox="0 0 200 200" fill="none" aria-hidden="true"><g fill="currentColor">{Array.from({length: 8}, (_,i) => <ellipse key={i} cx="100" cy="58" rx="23" ry="49" transform={`rotate(${i * 45} 100 100)`} />)}</g><circle cx="100" cy="100" r="30" fill="var(--flower-center, #264d3b)"/><path d="M87 100c5 8 21 8 26 0" stroke="currentColor" strokeWidth="3" strokeLinecap="round"/><circle cx="89" cy="91" r="2.5" fill="currentColor"/><circle cx="111" cy="91" r="2.5" fill="currentColor"/></svg>;
+}
