@@ -82,7 +82,7 @@ Do not commit API tokens, backups with personal data, `.env` files, `node_module
 
 1. Push this project, including `.github/workflows/pages.yml`, to GitHub.
 2. Open **Settings → Pages → Build and deployment → Source → GitHub Actions**.
-3. In **Actions → Deploy to GitHub Pages**, choose **Run workflow**. Later pushes to `main` deploy automatically.
+3. In **Actions → Deploy to GitHub Pages**, choose **Run workflow**. Run this workflow again whenever you want to publish an update. CI still tests and builds every push automatically.
 4. GitHub shows the published URL on the deployment and Pages settings screens.
 
 Vite uses relative asset paths, so it supports repository URLs such as `https://YOUR_USERNAME.github.io/daywell/` without changing the base path. The app uses internal views rather than server routes, so no rewrite is needed.
