@@ -2,7 +2,7 @@
 
 **A little more room for life.** A free, account-free personal planning app for everyday people. Warm paper tones, forest green, a friendly flower, and a calmer approach to getting things done.
 
-Live app: https://daywell-everyday-planner.zanychalet4.chatgpt.site
+Deploy this app under your own hosting account using GitHub Pages, Vercel, or Netlify. No platform branding is included in the interface.
 
 Source: https://github.com/Vthilakraj/daywell
 
@@ -79,6 +79,8 @@ Do not commit API tokens, backups with personal data, `.env` files, `node_module
 ## Deploy for everyone
 
 ### GitHub Pages (free for public repositories)
+
+For this repository, the address after successful deployment is `https://vthilakraj.github.io/daywell/`. Enable Pages in the repository settings before running the deployment workflow; this address is not active until deployment succeeds.
 
 1. Push this project, including `.github/workflows/pages.yml`, to GitHub.
 2. Open **Settings → Pages → Build and deployment → Source → GitHub Actions**.
